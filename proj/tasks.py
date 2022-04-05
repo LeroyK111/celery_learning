@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+from time import sleep
 from celerys import app
 """
 TODO 这是一种简单的应用
@@ -96,4 +97,45 @@ def hello(to):
  <unbound MyBaseTask>,
  <unbound Task>,
  <type 'object'>]
+"""
+
+
+@app.task()
+# 这里我们使用非生产环境的语句，celery -A celerys beat -l INFO
+def test(text):
+    print(text)
+    with open("./1.txt", mode="a+", encoding="utf8") as f:
+        f.writelines(str(text))
+
+
+"""
+from celery.signals import after_task_publish, before_task_publish, task_success, task_postrun, task_prerun
+
+@before_task_publish.connect(sender='tasks.test')
+def task_sent_handler(sender=None, headers=None, body=None, **kwargs):
+    print("在信号发出前调度")
+
+
+@after_task_publish.connect(sender='tasks.test')
+def task_sent_handler(sender=None, headers=None, body=None, **kwargs):
+    print(sender)
+    print(headers)
+    print(body)
+    print("将信号传入mq")
+
+
+@task_prerun.connect(sender='tasks.test')
+def task_incipient(task_id=None, task=None, **kwargs):
+    print("在执行任务之前调度")
+
+
+@task_postrun.connect(sender='tasks.test')
+def task_done(task_id=None, task=None, **kwargs):
+    print("执行任务后调度")
+
+
+# 任务执行成功后调度
+@task_success.connect(sender='tasks.test')
+def get_success_result(result=None, **kwargs):
+    print("任务执行成功后", result)
 """

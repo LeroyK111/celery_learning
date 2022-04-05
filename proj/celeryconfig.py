@@ -36,6 +36,8 @@ result_expires = 3600
 
 # 全局消息确认
 task_acks_late = False
+# 设置每个worker要做的任务和准备的任务。默认为-c 10的倍数
+worker_prefetch_multiplier = 1
 # 消息无法确认时，会自动重新提交
 task_reject_on_worker_lost = False
 
@@ -45,8 +47,44 @@ task_routes = {
         'queue': 'hipri'
     },
 }
-
 # 对任务进行速率限制，而不是路由它，这样一分钟内只能处理 10 个这种类型的任务（10/m）
 # task_annotations = {
 #     'tasks.add': {'rate_limit': '10/m'}
 # }
+"""
+推荐方法,将定时任务写在celeryconfig.py
+celery是将定时任务beat和工人任务worker分离了
+启动工人的同时
+celery -A celerys worker --loglevel=INFO -P eventlet
+又要启动定时任务
+celery -A celerys beat -l INFO
+
+这也就是为什么生产环境下，需要两份配置文件。
+"""
+from celery.schedules import crontab
+import datetime
+
+beat_schedule = {
+    'add-every-30-seconds': {
+        'task': 'tasks.test',
+        'schedule': 3.0,
+        'args': (datetime.datetime.now(), "定时测试", "\n")
+    }
+}
+"""
+老方法不推荐
+"""
+# from tasks import test
+# @app.on_after_configure.connect
+# def setup_periodic_tasks(sender, **kwargs):
+# 通过装饰器，每十秒调用一次
+# sender.add_periodic_task(1, test.s("hallo"), name='work_beat')
+
+# 每三十秒调用一次
+# sender.add_periodic_task(30.0, test.s('world'), expires=10)
+
+# 每隔一周，的7：30调用一次
+# sender.add_periodic_task(
+#     crontab(hour=7, minute=30, day_of_week=1),
+#     test.s('Happy Mondays!'),
+# )

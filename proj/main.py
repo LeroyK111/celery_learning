@@ -94,6 +94,10 @@ def chord_text():
     print(result)
 
 
+def demo4():
+    from tasks import test
+    test.delay("世界\n")
+
 if __name__ == '__main__':
     # demo()
     # demo1()
@@ -101,4 +105,5 @@ if __name__ == '__main__':
     # demo3()
     # group_text()
     # chain_text()
-    chord_text()
+    # chord_text()
+    demo4()

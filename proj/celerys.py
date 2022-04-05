@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from celery import Celery
+
 # 实例化一个对象
 app = Celery('celerys')
+
 # 直接从本文件中取参数
 app.config_from_object('celeryconfig')
 
